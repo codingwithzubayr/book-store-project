@@ -7,8 +7,9 @@ async function fetchBooks() {
         bookList.innerHTML = '';
         books.forEach(book => {
             const li = document.createElement('li');
+            const fullname = `${book.title} by ${book.author}`;  // Create fullname
             li.innerHTML = `${book.title} by ${book.author} (${book.publication_year}, $${book.price}) 
-                            <button class="delete-btn" onclick="deleteBook(${book.id})">Delete</button>`;
+                            <button class="delete-btn" onclick="deleteBook('${encodeURIComponent(fullname)}')">Delete</button>`;  // Pass fullname as string
             bookList.appendChild(li);
         });
     } catch (error) {
@@ -31,7 +32,7 @@ async function addBook() {
     const book = { title, author, publication_year: parseInt(year), price: parseFloat(price) };
 
     try {
-        const response = await fetch('http://43.202.47.57:5000/add', {
+        const response = await fetch('http://43.202.47.57:5000/add_student', {  // Change from /add to /add_student
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(book)
@@ -53,10 +54,10 @@ async function addBook() {
 }
 
 // Delete a book
-async function deleteBook(id) {
+async function deleteBook(fullname) {
     if (confirm('Are you sure you want to delete this book?')) {
         try {
-            await fetch(`http://43.202.47.57:5000/delete/${id}`, {
+            await fetch(`http://43.202.47.57:5000/delete/${encodeURIComponent(fullname)}`, {  // Use fullname in the URL
                 method: 'DELETE'
             });
             fetchBooks(); // Refresh the list
