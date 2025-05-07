@@ -1,7 +1,7 @@
 // Fetch and display books
 async function fetchBooks() {
     try {
-        const response = await fetch('http://3.36.49.128:5000/books');
+        const response = await fetch('http://43.202.47.57:5000/books');
         const books = await response.json();
         const bookList = document.getElementById('books');
         bookList.innerHTML = '';
@@ -23,14 +23,24 @@ async function addBook() {
     const year = document.getElementById('year').value;
     const price = document.getElementById('price').value;
 
+    if (!title || !author || !year || !price) {
+        alert('Please fill in all fields.');
+        return;
+    }
+
     const book = { title, author, publication_year: parseInt(year), price: parseFloat(price) };
 
     try {
-        await fetch('http://3.36.49.128:5000/add', {
+        const response = await fetch('http://43.202.47.57:5000/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(book)
         });
+        if (!response.ok) {
+            throw new Error(`Failed to add book: ${response.statusText}`);
+        }
+        const result = await response.json();
+        alert(result.message); // Show success message
         fetchBooks(); // Refresh the list
         document.getElementById('title').value = '';
         document.getElementById('author').value = '';
@@ -38,6 +48,7 @@ async function addBook() {
         document.getElementById('price').value = '';
     } catch (error) {
         console.error('Error adding book:', error);
+        alert('Error adding book: ' + error.message);
     }
 }
 
@@ -45,7 +56,7 @@ async function addBook() {
 async function deleteBook(id) {
     if (confirm('Are you sure you want to delete this book?')) {
         try {
-            await fetch(`http://3.36.49.128:5000/delete/${id}`, {
+            await fetch(`http://43.202.47.57:5000/delete/${id}`, {
                 method: 'DELETE'
             });
             fetchBooks(); // Refresh the list
